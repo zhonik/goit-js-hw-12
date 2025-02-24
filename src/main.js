@@ -41,12 +41,12 @@ async function onSearchFormSubmit(e) {
   e.preventDefault();
   refs.gallery.innerHTML = '';
   refs.loader.classList.remove('disabled');
+  refs.loadMoreBtn.classList.add('hidden');
 
   searchQuery = e.target.elements.search.value;
 
   if (searchQuery.trim() === '') {
     refs.loader.classList.add('disabled');
-    refs.loadMoreBtn.classList.add('hidden');
     return iziToast.error({
       message:
         'Sorry, there are no images matching your search query. Please try again!',
@@ -60,6 +60,8 @@ async function onSearchFormSubmit(e) {
 
     if (photos.length === 0) {
       refs.loader.classList.add('disabled');
+      refs.loadMoreBtn.classList.add('hidden');
+      refs.searchForm.reset();
       return iziToast.error({
         message:
           'Sorry, there are no images matching your search query. Please try again!',
@@ -73,7 +75,13 @@ async function onSearchFormSubmit(e) {
     photosTamplate(photos);
     lightbox.refresh();
 
-    refs.loadMoreBtn.classList.remove('hidden');
+    if (
+      instance.defaults.params.totalHits <= instance.defaults.params.per_page
+    ) {
+      refs.loadMoreBtn.classList.add('hidden');
+    } else {
+      refs.loadMoreBtn.classList.remove('hidden');
+    }
   } catch (error) {
     console.error('Error fetching data from Pixabay API');
   }
